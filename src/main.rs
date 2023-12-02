@@ -155,26 +155,33 @@ fn calculate_line_sum_with_words(input: &String) -> u32 {
                 println!("The last word position is {:?}",last_word_position);
             }
 
-            let mut left_thing: Option<&str> = None;
-            let mut right_thing: Option<&str> = None;
+            let mut left_number: Option<char> = None;
+            //let mut right_number: Option<&str> = None;
 
             match (first_digit_position,first_word_position) {
                 (Some(first_digit_position),Some(first_word_position)) => {
                     if first_digit_position < first_word_position {
                         println!("First is a digit: {:?}", first_digit);
-                        left_thing = first_digit.map(|c| c.to_string().as_str());
-                    } else {
+                        left_number = first_digit;
+                    } else {                      
                         println!("First is a word: {:?}",first_word);
-                        left_thing = number_map.get(first_word).map(|&v v|).cloned();
+                        if let Some(first_word2number) = first_word{
+                            left_number = number_map.get(first_word2number).map(|s| s.chars().next());
+                        }
                     }
                 }
                 (Some(first_digit_position),None) => {
                     println!("Only digit exists");
-                    left_thing = first_digit;
+                    println!("First is a digit: {:?}", first_digit);
+                    left_number = first_digit;
+                    //left_number = first_digit.map(|c| c.to_string().as_str());
                 }
                 (None,Some(first_word_position)) => {
                     println!("Only words exists");
-                    left_thing = first_word;
+                    if let Some(first_word2number) = first_word{
+                        left_number = number_map.get(first_word2number).map(|s| s.chars().next()).unwrap();
+                    }
+                    //left_number = first_word;
                 }
                 (None, None) => {
                     println!("Nothing found");
@@ -185,9 +192,9 @@ fn calculate_line_sum_with_words(input: &String) -> u32 {
             match (last_digit_position,last_word_position) {
                 (Some(last_digit_position),Some(last_word_position)) => {
                     if last_digit_position > last_word_position {
-                        println!("Last is a digit: {:?}", first_digit);
+                        println!("Last is a digit: {:?}", last_digit);
                     } else {
-                        println!("Last is a word: {:?}",first_word);
+                        println!("Last is a word: {:?}",last_word);
                     }
                 }
                 (Some(last_digit_position),None) => {
@@ -202,7 +209,10 @@ fn calculate_line_sum_with_words(input: &String) -> u32 {
 
             }
             println!("");
-            Some(5)
+
+            println!("Left number = {:?}",left_number?.to_digit(10));
+            left_number?.to_digit(10)
+
             //Some(last_digit.to_digit(10)? + first_digit.to_digit(10)? * 10)
         })
         .sum()
