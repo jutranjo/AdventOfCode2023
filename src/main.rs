@@ -1,4 +1,4 @@
-use std::{fs, collections::{HashMap, btree_map::Values}};
+use std::{fs, collections::HashMap};
 
 fn extract_id(input: &str) -> i32 {
     let parts: Vec<&str> = input.split_whitespace().collect();
