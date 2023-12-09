@@ -252,9 +252,9 @@ fn case6(_entry: &AlmanacEntry, range: &SeedRange, remaining_ranges: &mut Vec<Se
 }
 
 
-fn map_range_with_string(all_almanacs: &Vec<AlmanacMap>, input_range: SeedRange, name: String) -> Vec<SeedRange> {
+fn map_range_with_string(all_almanacs: &Vec<AlmanacMap>, input_ranges: Vec<SeedRange>, name: String) -> Vec<SeedRange> {
 
-    let mut remaining_ranges: Vec<SeedRange> = vec![input_range];
+    let mut remaining_ranges: Vec<SeedRange> = input_ranges;
     let mut output_ranges: Vec<SeedRange> = vec![];
     let mut ranges_to_revisit: Vec<SeedRange>;
 
@@ -281,7 +281,7 @@ fn map_range_with_string(all_almanacs: &Vec<AlmanacMap>, input_range: SeedRange,
                     (false, true, true, false) => { case4(entry, range_slice, &mut ranges_to_revisit, &mut output_ranges); }    // <--[----]--->
                     (true, true, false, false) => { case5(entry, range_slice, &mut ranges_to_revisit, &mut output_ranges); }    // [--<--->---]
                     (false, false, false, false) => { case6(entry, range_slice, &mut ranges_to_revisit, &mut output_ranges); }  // <-----> [------]
-                    _ => {panic!("Unforseen variant of ordering");}
+                    _ => {panic!("Unforseen variant of ordering at {}: {} {}, {} {}",name,a,b,c,d);}
                 }
             }
             remaining_ranges.append(&mut ranges_to_revisit);
@@ -296,15 +296,23 @@ fn map_range_with_string(all_almanacs: &Vec<AlmanacMap>, input_range: SeedRange,
 }
 
 fn map_seed_ranges_to_location(all_almanacs: Vec<AlmanacMap>, seed_ranges: Vec<SeedRange>) -> isize {
-    for range in seed_ranges {
+
+    
+    let soil_ranges = map_range_with_string(&all_almanacs, seed_ranges, String::from("seed-to-soil"));
+    let fertilizer_ranges = map_range_with_string(&all_almanacs, soil_ranges, String::from("soil-to-fertilizer"));
+    let water_ranges = map_range_with_string(&all_almanacs, fertilizer_ranges, String::from("fertilizer-to-water"));
+    let light_ranges = map_range_with_string(&all_almanacs, water_ranges, String::from("water-to-light"));
+    let temperature_ranges = map_range_with_string(&all_almanacs, light_ranges, String::from("light-to-temperature"));
+    let humidity_ranges = map_range_with_string(&all_almanacs, temperature_ranges, String::from("temperature-to-humidity"));
+    let location_ranges = map_range_with_string(&all_almanacs, humidity_ranges, String::from("humidity-to-location"));
+
+    println!("{:?}",location_ranges);
+
+    //for range in seed_ranges {
         //mogoce prepisem tole da sprejme namesto range kar direkt seed_ranges, vse zgleda da bi pasalo
-        let soil_ranges = map_range_with_string(&all_almanacs, range, String::from("seed-to-soil"));
+        //let soil_ranges = map_range_with_string(&all_almanacs, range, String::from("seed-to-soil"));
         //potem lahko samo range naprej podajam po vseh almanahih
-        for soil in soil_ranges {}
-
-
-        
-    }
+    //}
 
     //na koncu preberem vse range od location, treba samo starte brat pa med njimi najmanjsega vzet
     //to je to
