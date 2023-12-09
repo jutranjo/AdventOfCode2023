@@ -12,7 +12,7 @@ pub struct AlmanacEntry {
     range_length: usize,
 }
 
-#[derive(Clone,Debug,PartialEq)]
+#[derive(Clone,Debug,PartialEq,Eq,Hash)]
 pub struct SeedRange {
     start: isize,
     end: isize,
@@ -177,7 +177,7 @@ fn convert_pairs_to_ranges(seed_pairs: &Vec<Vec<isize>>) -> Vec<SeedRange> {
     let mut constructed_pairs: Vec<SeedRange> = vec![];
 
     for pair in seed_pairs {
-        let new_seed_range = SeedRange {start: pair[0], end: pair[0]+pair[1]};
+        let new_seed_range = SeedRange {start: pair[0], end: pair[0]+pair[1]-1};
         constructed_pairs.push(new_seed_range);
     }
 
@@ -259,10 +259,6 @@ fn map_range_with_string(all_almanacs: &Vec<AlmanacMap>, input_ranges: Vec<SeedR
     let mut ranges_to_revisit: Vec<SeedRange>;
 
     if let Some(almanac) = all_almanacs.iter().find(|almanac| almanac.name==name) {
-        //vsak entry mora premapirati kar mu pripada
-        //kar ne premapira, ostane za naslednji entry
-            //prvi entry: v seznamu remaining_ranges razkosa prvega na 2 kosa
-            //tista dva kosa sta v remaining ranges, naslednji jih mora oba pregledati
         for entry in almanac.entries.iter() {
             ranges_to_revisit = vec![];
             for range_slice in &remaining_ranges {
@@ -283,8 +279,10 @@ fn map_range_with_string(all_almanacs: &Vec<AlmanacMap>, input_ranges: Vec<SeedR
                     (false, false, false, false) => { case6(entry, range_slice, &mut ranges_to_revisit, &mut output_ranges); }  // <-----> [------]
                     _ => {panic!("Unforseen variant of ordering at {}: {} {}, {} {}",name,a,b,c,d);}
                 }
+                println!("entry: {:?} | ranges to revisit: {:?}",entry,ranges_to_revisit);
+                
             }
-            remaining_ranges.append(&mut ranges_to_revisit);
+            //remaining_ranges.append(&mut ranges_to_revisit);
         }
         output_ranges.append(&mut remaining_ranges);
         //preostanek se po preverbi vseh entryijev pripopa na izhod output_ranges
@@ -356,6 +354,7 @@ fn map_using_almanac(start: isize, almanac: &AlmanacMap) -> isize {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashSet;
     use std::fs;
     use crate::{read_input_to_almanac, map_using_almanac, case1, SeedRange, AlmanacEntry, case2, case3, case4, case5, case6};
 
@@ -537,6 +536,46 @@ mod tests {
         assert_eq!(output_ranges,expected_ouput);
 
     }
+
+
+    use crate::{read_input_to_seeds_pairs,convert_pairs_to_ranges,map_range_with_string};
+
+    #[test]
+    fn test_pairs_to_ranges() {
+        let file_location = "example.txt";
+        let example = fs::read_to_string(file_location).expect(&format!("Couldn't open file: {}",file_location));
+        
+        let seed_pairs = read_input_to_seeds_pairs(&example);
+        let seed_ranges = convert_pairs_to_ranges(&seed_pairs);
+        
+        let expected_ranges = vec![SeedRange{ start:79, end: 92}, SeedRange{start:55,end:67}];
+
+        //let does_the_result_contain_only_expected_ranges = seed_ranges.iter().all(|range| expected_ranges.contains(&range));
+        let output_set: HashSet<SeedRange> = seed_ranges.into_iter().collect();
+        let expected_set: HashSet<SeedRange> = expected_ranges.into_iter().collect();
+
+
+        assert_eq!(expected_set,output_set);
+
+    }
+
+    #[test]
+    fn test_map_range_with_string() {
+        let file_location = "example.txt";
+        let example = fs::read_to_string(file_location).expect(&format!("Couldn't open file: {}",file_location));
+        
+        let all_almanacs = read_input_to_almanac(&example);
+        let seed_pairs = read_input_to_seeds_pairs(&example);
+        let seed_ranges = convert_pairs_to_ranges(&seed_pairs);
+        
+        let soil_ranges = map_range_with_string(&all_almanacs, seed_ranges, String::from("seed-to-soil"));
+        let output_set: HashSet<SeedRange> = soil_ranges.into_iter().collect();
+
+        let expected_ranges = vec![SeedRange{ start:81, end: 94}, SeedRange{start:57,end:69}];
+        let expected_set: HashSet<SeedRange> = expected_ranges.into_iter().collect();
+        assert_eq!(output_set,expected_set);
+    }
+    
 }
 
     
