@@ -65,7 +65,7 @@ fn get_hand_type(cards: &str) -> HandType {
         match high_match{
             5 => HandType::FiveOfAKind,
             4 => HandType::FourOfAKind,
-            3 => { if let Some(second_match) = hand_rank_vector.get(1) {
+            3|2 => { if let Some(second_match) = hand_rank_vector.get(1) {
                             match (high_match,second_match) {
                                 (3,2) => HandType::FullHouse,
                                 (3,1) => HandType::ThreeOfAKind,
@@ -123,7 +123,7 @@ fn load_input_into_hands(input: &str) -> Vec<Hand> {
     let mut output: Vec<Hand> = vec![];
     for line in input.lines().into_iter() {
         println!("{}",line);
-        let split_line = line.split_ascii_whitespace().collect::<Vec<&str>>();
+        let split_line: Vec<&str> = line.split_ascii_whitespace().collect();
         let card_string: &str = split_line[0];
         let card_value: usize = split_line[1].parse().expect("couldnt read bid number!");
 
