@@ -1,0 +1,1 @@
+This repo contains the advent of code 2023 days I finished. I used it as an opportunity to learn Rust and managed to get to day 7 in december, with almost all the bonus challenges. I will slowly continue to upload more solutions to these problems in Rust.
